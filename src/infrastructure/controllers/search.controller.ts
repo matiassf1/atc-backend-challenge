@@ -1,4 +1,11 @@
-import { Controller, Get, Query, UsePipes } from '@nestjs/common';
+import {
+  CacheInterceptor,
+  Controller,
+  Get,
+  Query,
+  UseInterceptors,
+  UsePipes,
+} from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import * as moment from 'moment';
 import { createZodDto, ZodValidationPipe } from 'nestjs-zod';
@@ -8,6 +15,7 @@ import {
   ClubWithAvailability,
   GetAvailabilityQuery,
 } from '../../domain/commands/get-availaiblity.query';
+import { CacheService } from '../../common/services/cache.service';
 
 const GetAvailabilitySchema = z.object({
   placeId: z.string(),
@@ -21,16 +29,26 @@ const GetAvailabilitySchema = z.object({
 class GetAvailabilityDTO extends createZodDto(GetAvailabilitySchema) {}
 
 @Controller('search')
+@UseInterceptors(CacheInterceptor)
 export class SearchController {
-  constructor(private queryBus: QueryBus) {}
+  constructor(private queryBus: QueryBus, private cacheService: CacheService) {}
 
   @Get()
   @UsePipes(ZodValidationPipe)
-  searchAvailability(
+  async searchAvailability(
     @Query() query: GetAvailabilityDTO,
   ): Promise<ClubWithAvailability[]> {
-    return this.queryBus.execute(
+    const cacheKey = `search:${query.placeId}:${query.date}`;
+    const cachedData = this.cacheService.get<ClubWithAvailability[]>(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+
+    const result = await this.queryBus.execute(
       new GetAvailabilityQuery(query.placeId, query.date),
     );
+
+    this.cacheService.set(cacheKey, result);
+    return result;
   }
 }
