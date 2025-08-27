@@ -35,7 +35,7 @@ export class HTTPAlquilaTuCanchaClient implements AlquilaTuCanchaClient {
         })
         .then((res) => res.data);
 
-      this.cacheService.set(cacheKey, response);
+      this.cacheService.set(cacheKey, response, 30 * 1000);
       return response;
     } catch (error) {
       throw new Error('Error getting clubs');
@@ -56,7 +56,7 @@ export class HTTPAlquilaTuCanchaClient implements AlquilaTuCanchaClient {
         })
         .then((res) => res.data);
 
-      this.cacheService.set(cacheKey, response);
+      this.cacheService.set(cacheKey, response, 30 * 1000);
       return response;
     } catch (error) {
       throw new Error('Error getting courts');
@@ -82,7 +82,7 @@ export class HTTPAlquilaTuCanchaClient implements AlquilaTuCanchaClient {
         })
         .then((res) => res.data);
 
-      this.cacheService.set(cacheKey, response);
+      this.cacheService.set(cacheKey, response, 30 * 1000);
       return response;
     } catch (error) {
       throw new Error('Error getting available slots');

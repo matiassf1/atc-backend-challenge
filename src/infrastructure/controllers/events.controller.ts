@@ -66,7 +66,7 @@ export class EventsController {
       return { message: 'Event already processed' };
     }
 
-    this.cacheService.set(cacheKey, true, 1000);
+    this.cacheService.set(cacheKey, true, 30 * 1000);
 
     try {
       switch (externalEvent.type) {

@@ -48,7 +48,7 @@ export class SearchController {
       new GetAvailabilityQuery(query.placeId, query.date),
     );
 
-    this.cacheService.set(cacheKey, result);
+    this.cacheService.set(cacheKey, result, 30 * 1000);
     return result;
   }
 }
